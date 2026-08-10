@@ -1,0 +1,2 @@
+java -cp "bin;lib/antlr-4.13.1-complete.jar" cartlang.main.Main teste_valido.cart : execução do teste válido
+java -cp "bin;lib/antlr-4.13.1-complete.jar" cartlang.main.Main teste_invalido.cart : execução do teste inválido
