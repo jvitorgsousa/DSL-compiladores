@@ -22,7 +22,7 @@ public class LexerRunner {
         lexer.removeErrorListeners();
         lexer.addErrorListener(new CustomErrorListener());
 
-        // Retorna a sequência de tokens gerada pela análise léxica
+        // Retorno de sequência de tokens gerada pela análise léxica
         return new CommonTokenStream(lexer);
     }
 }

@@ -2,7 +2,6 @@ package cartlang.main;
 
 import cartlang.parser.*;
 import cartlang.semantic.*;
-import cartlang.lexer.*;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.ParseTree;
 
@@ -18,7 +17,7 @@ public class Main {
             CommonTokenStream tokens = new CommonTokenStream(lexer);
             CartLangParser parser = new CartLangParser(tokens);
 
-            // Tenta realizar o parse
+            // o parse acontece aqui
             ParseTree tree = parser.program();
 
             if (parser.getNumberOfSyntaxErrors() > 0) {
@@ -26,7 +25,7 @@ public class Main {
                 return;
             }
 
-            // Executa a verificação semântica
+            // verificação semântica
             CartVisitor visitor = new CartVisitor();
             visitor.visit(tree);
 
@@ -34,7 +33,7 @@ public class Main {
 
         } catch (Exception e) {
             System.err.println("\n[EXCEÇÃO CAPTURADA]: " + e.getMessage());
-            e.printStackTrace(); // Mostra a linha exata onde o código falhou
+            e.printStackTrace(); 
         }
     }
 }

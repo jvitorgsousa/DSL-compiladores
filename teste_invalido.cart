@@ -1,7 +1,0 @@
-string cliente = "Maria"   // ERRO: Faltou o ponto e vírgula ';'
-
-item 25.0, ;              // ERRO: Faltou a quantidade após a vírgula
-
-if total > 100 {          // ERRO: Faltaram os parênteses na condição do 'if'
-    resumo
-}
