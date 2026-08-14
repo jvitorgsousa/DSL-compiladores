@@ -53,6 +53,18 @@ public class CartLangBaseListener implements CartLangListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterClienteDecl(CartLangParser.ClienteDeclContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitClienteDecl(CartLangParser.ClienteDeclContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterType(CartLangParser.TypeContext ctx) { }
 	/**
 	 * {@inheritDoc}

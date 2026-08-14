@@ -24,22 +24,38 @@ Declarar variáveis explicitamente, com ou sem inicialização.
   ```
 * **Tipos suportados:** `int`, `float`, `string`
 
-### 2.  Adição de Itens
-Adiciona um produto com seu respectivo valor ou quantidade à lista de compras.
+### 2. Cadastro de Cliente
+Cria um cliente no sistema associado a um identificador (`ID`).
+
+* **Sintaxe:** `cliente (ID) = "Nome do Cliente";`
+* **Exemplo:**
+```cartlang
+  cliente (c1) = "João Silva";
+  cliente (c2) = "Maria Oliveira";
+```
+
+### 3.  Adição de Itens
+Associa um produto a um cliente, com seu respectivo valor ou quantidade à lista de compras.
 
 ```
-item "Nome do Produto", ValorOuQuantidade;
+float valorCamiseta = 45.50;
+
+item (c1) "Camiseta", valorCamiseta;
+item (c1) "Tênis", 250.00;
+item (c2) "Livro Java", 89.90;
 ```
 * **Sintaxe:** O primeiro parâmetro deve obrigatoriamente ser uma String, seguindo de seu valor que deve ser um float.
+O cliente referente ao ID precisa existir.
 
-### 3.  Resumo de Compras
-Imprime no console a lista atualizada com todos os itens adicionados ao carrinho e o total acumulado.
+### 4.  Resumo de Compras
+Imprime no console a lista atualizada com todos os itens adicionados ao carrinho e o total acumulado. Pode exibir a lista de um cliente especifico ou de todos os clientes cadastrados.
 
 ```
-resumo;
+resumo c1; // Imprime apenas o carrinho do cliente c1
+resumo; // Imprime o carrinho de todos os clientes.
 ```
 
-### 4.  Estruturas de Controle (Condições e Repetições)
+### 5.  Estruturas de Controle (Condições e Repetições)
 Cumpre a mesma função de sua base, executa blocos de código com base em condições lógica.
 
 ```
@@ -69,5 +85,5 @@ javac -cp ".;lib/antlr-4.13.1-complete.jar" -d bin (Get-ChildItem -Recurse src/*
 
 ### 3. Execução de arquivo 
 ```
-javac -cp ".;lib/antlr-4.13.1-complete.jar" -d bin (Get-ChildItem -Recurse src/*.java)
+java -cp "bin;lib/antlr-4.13.1-complete.jar" cartlang.main.Main arquivo.cart
 ```

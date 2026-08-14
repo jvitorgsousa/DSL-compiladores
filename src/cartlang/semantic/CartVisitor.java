@@ -1,9 +1,10 @@
 package cartlang.semantic;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import cartlang.parser.CartLangBaseVisitor;
-import cartlang.parser.CartLangParser;
+import cartlang.parser.*;
 
 public class CartVisitor extends CartLangBaseVisitor<Object> {
 
@@ -11,17 +12,48 @@ public class CartVisitor extends CartLangBaseVisitor<Object> {
 
     // Estrutura para os comandos de domínio
     private static class ItemCompra {
+
+    }
+
+    private static class ItemCarrinho {
         String nome;
-        double preco;
-        ItemCompra(String nome, double preco) {
+        double valor;
+
+        ItemCarrinho(String nome, double valor) {
             this.nome = nome;
-            this.preco = preco;
+            this.valor = valor;
+        }
+    }
+
+    // Estrutura para os dados do cliente e seu carrinho individual
+    private static class CarrinhoCliente {
+        String nomeCliente;
+        List<ItemCarrinho> itens = new ArrayList<>();
+
+        CarrinhoCliente(String nomeCliente) {
+            this.nomeCliente = nomeCliente;
         }
     }
 
     private final List<ItemCompra> carrinho = new ArrayList<>();
+    private Map<String, CarrinhoCliente> clientes = new HashMap<>();
+
 
     // --- Declaração e Atribuição ---
+
+    @Override
+    public Object visitClienteDecl(CartLangParser.ClienteDeclContext ctx) {
+        String idCliente = ctx.ID().getText();
+        Object valExpr = visit(ctx.expr());
+        
+        String nomeFormatado = (valExpr != null) ? valExpr.toString().replace("\"", "") : idCliente;
+
+        // Cria o carrinho vinculado ao ID
+        clientes.put(idCliente, new CarrinhoCliente(nomeFormatado));
+        System.out.println("[DSL Log] Cliente cadastrado: ID='" + idCliente + "', Nome='" + nomeFormatado + "'");
+        return null;
+    }
+    
 
     @Override
     public Object visitVarDecl(CartLangParser.VarDeclContext ctx) {
@@ -63,39 +95,101 @@ public class CartVisitor extends CartLangBaseVisitor<Object> {
 
     @Override
     public Object visitItemStmt(CartLangParser.ItemStmtContext ctx) {
-        Object nomeObj = visit(ctx.expr(0));
-        Object precoObj = visit(ctx.expr(1));
-        int line = ctx.getStart().getLine();
+        String idCliente = ctx.ID().getText();
 
-        if (!(nomeObj instanceof String)) {
-            throw new RuntimeException("Erro Semântico na linha " + line + ": O primeiro argumento do comando 'item' deve ser uma String.");
-        }
-        if (!(precoObj instanceof Number)) {
-            throw new RuntimeException("Erro Semântico na linha " + line + ": O segundo argumento do comando 'item' deve ser int ou float.");
+        if (!clientes.containsKey(idCliente)) {
+            throw new RuntimeException("Erro Semântico: Cliente com ID '" + idCliente + "' não foi declarado.");
         }
 
-        String nome = (String) nomeObj;
-        double preco = ((Number) precoObj).doubleValue();
+        Object objNome = visit(ctx.expr(0));
+        Object objValor = visit(ctx.expr(1));
 
-        carrinho.add(new ItemCompra(nome, preco));
-        System.out.println("[DSL Log] Adicionado ao carrinho: " + nome + " -> R$ " + String.format("%.2f", preco));
+        String nomeProd = (objNome != null) ? objNome.toString().replace("\"", "") : "Produto sem nome";
+        double valorProd = Double.parseDouble(objValor.toString());
+
+        // Adiciona o item na lista do cliente correspondente
+        CarrinhoCliente carrinho = clientes.get(idCliente);
+        carrinho.itens.add(new ItemCarrinho(nomeProd, valorProd));
+
+        System.out.println("[DSL Log] Adicionado para (" + idCliente + "): " + nomeProd + " -> R$ " + String.format("%.2f", valorProd));
         return null;
     }
 
     @Override
     public Object visitResumoStmt(CartLangParser.ResumoStmtContext ctx) {
-        System.out.println("\n==========================================");
-        System.out.println("         RESUMO DA LISTA DE COMPRAS       ");
-        System.out.println("==========================================");
-        double total = 0;
-        for (ItemCompra item : carrinho) {
-            System.out.printf("- %-25s R$ %7.2f\n", item.nome, item.preco);
-            total += item.preco;
+        // CASO 1: resumo de um cliente específico (ex: resumo c1;)
+        if (ctx.ID() != null) {
+            String idCliente = ctx.ID().getText();
+
+            if (!clientes.containsKey(idCliente)) {
+                throw new RuntimeException("Erro Semântico: Impossível gerar resumo. Cliente '" + idCliente + "' não existe.");
+            }
+
+            imprimirResumoCliente(idCliente, clientes.get(idCliente));
+        } 
+        // CASO 2: resumo geral de TODOS os clientes (ex: resumo;)
+        else {
+            if (clientes.isEmpty()) {
+                System.out.println("\n[SISTEMA]: Nenhum cliente/carrinho cadastrado no sistema.");
+                return null;
+            }
+
+            System.out.println("\n==========================================");
+            System.out.println("   RESUMO GERAL DE TODOS OS CLIENTES      ");
+            System.out.println("==========================================");
+
+            double totalGeral = 0.0;
+
+            for (Map.Entry<String, CarrinhoCliente> entry : clientes.entrySet()) {
+                String id = entry.getKey();
+                CarrinhoCliente carrinho = entry.getValue();
+
+                System.out.println("\nCLIENTE: " + carrinho.nomeCliente + " (ID: " + id + ")");
+                System.out.println("------------------------------------------");
+
+                double subtotal = 0.0;
+                if (carrinho.itens.isEmpty()) {
+                    System.out.println("  (Carrinho vazio)");
+                } else {
+                    for (ItemCarrinho item : carrinho.itens) {
+                        System.out.printf("- %-25s R$ %8.2f\n", item.nome, item.valor);
+                        subtotal += item.valor;
+                    }
+                }
+                System.out.printf("SUBTOTAL:                    R$ %8.2f\n", subtotal);
+                totalGeral += subtotal;
+            }
+
+            System.out.println("==========================================");
+            System.out.printf("TOTAL GERAL DE TODAS AS COMPRAS: R$ %8.2f\n", totalGeral);
+            System.out.println("==========================================\n");
         }
-        System.out.println("------------------------------------------");
-        System.out.printf("TOTAL ACUMULADO:              R$ %7.2f\n", total);
-        System.out.println("==========================================\n");
+
         return null;
+    }
+
+     // Método auxiliar para imprimir o resumo de um único cliente
+     private void imprimirResumoCliente(String idCliente, CarrinhoCliente carrinho) {
+        double total = 0.0;
+
+        System.out.println("\n==========================================");
+        System.out.println("        RESUMO DO CARRINHO                ");
+        System.out.println("==========================================");
+        System.out.println("CLIENTE: " + carrinho.nomeCliente + " (ID: " + idCliente + ")");
+        System.out.println("------------------------------------------");
+
+        if (carrinho.itens.isEmpty()) {
+            System.out.println("  (Carrinho vazio)");
+        } else {
+            for (ItemCarrinho item : carrinho.itens) {
+                System.out.printf("- %-25s R$ %8.2f\n", item.nome, item.valor);
+                total += item.valor;
+            }
+        }
+
+            System.out.println("------------------------------------------");
+            System.out.printf("TOTAL ACUMULADO:              R$ %8.2f\n", total);
+            System.out.println("==========================================\n");
     }
 
     // --- Estruturas de Controle ---

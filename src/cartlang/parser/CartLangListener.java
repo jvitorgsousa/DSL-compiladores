@@ -38,6 +38,16 @@ public interface CartLangListener extends ParseTreeListener {
 	 */
 	void exitVarDecl(CartLangParser.VarDeclContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link CartLangParser#clienteDecl}.
+	 * @param ctx the parse tree
+	 */
+	void enterClienteDecl(CartLangParser.ClienteDeclContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link CartLangParser#clienteDecl}.
+	 * @param ctx the parse tree
+	 */
+	void exitClienteDecl(CartLangParser.ClienteDeclContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link CartLangParser#type}.
 	 * @param ctx the parse tree
 	 */

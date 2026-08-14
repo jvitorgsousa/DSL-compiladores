@@ -13,8 +13,10 @@ program
     : statement* EOF
     ;
 
+
 statement
     : varDecl
+    | clienteDecl   
     | assignment
     | itemStmt
     | resumoStmt
@@ -28,6 +30,10 @@ varDecl
     | type ID '=' expr ';'
     ;
 
+clienteDecl
+    : 'cliente' '(' ID ')' '=' expr ';'
+    ;
+
 type
     : 'int'
     | 'float'
@@ -39,11 +45,11 @@ assignment
     ;
 
 itemStmt
-    : 'item' expr ',' expr ';'
+    : 'item' '(' ID ')' expr ',' expr ';'
     ;
 
 resumoStmt
-    : 'resumo' ';'
+    : 'resumo' (ID)? ';'
     ;
 
 ifStmt

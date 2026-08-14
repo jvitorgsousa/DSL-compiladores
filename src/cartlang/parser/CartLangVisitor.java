@@ -29,6 +29,12 @@ public interface CartLangVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitVarDecl(CartLangParser.VarDeclContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link CartLangParser#clienteDecl}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitClienteDecl(CartLangParser.ClienteDeclContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link CartLangParser#type}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
